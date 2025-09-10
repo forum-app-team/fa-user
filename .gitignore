@@ -3,8 +3,13 @@
 .flaskenv
 .python-version
 
-## Ignoring python cache
+# Ignoring python cache
 __pycache__/
 .mypy_cache
 
+# Ignoring vs code configs
+.vscode/
 
+
+# Ignoring notes.md
+notes.md
