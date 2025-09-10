@@ -1,0 +1,10 @@
+# Ignoring dot files
+.env
+.flaskenv
+.python-version
+
+## Ignoring python cache
+__pycache__/
+.mypy_cache
+
+
