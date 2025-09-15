@@ -5,14 +5,17 @@ import time
 from flask_sqlalchemy import SQLAlchemy
 from app import db
 from ..models.User import User
+from .producer import publish_profile_creation_failed
 
 def run_consumer(app):
     with app.app_context():
         url = app.config["RABBITMQ_URL"]
+
         exchange = app.config["RABBITMQ_EXCHANGE"]
         exchange_type = app.config["RABBITMQ_EXCHANGE_TYPE"]
         routing_key = app.config["RABBITMQ_ROUTING_KEY"]
         queue = f"{exchange}.{routing_key}"
+
 
         while True:
             try:
@@ -20,6 +23,8 @@ def run_consumer(app):
                 ch = conn.channel()
 
                 ch.exchange_declare(exchange = exchange, exchange_type = exchange_type, durable = True)
+
+                print(f"Delcaring queue: {queue}")
                 ch.queue_declare(queue = queue, durable = True)
                 ch.queue_bind(exchange = exchange, queue = queue, routing_key = routing_key)
 
@@ -35,15 +40,24 @@ def run_consumer(app):
 
                         user = User(user_id = data["userId"], first_name = data["firstName"], last_name = data["lastName"])
 
+                        # test error handling
+
                         db.session.add(user)
                         db.session.commit()
-                        ch.basic_ack(delivery_tag=method.delivery_tag)
+                        _ch.basic_ack(delivery_tag=method.delivery_tag)
 
                         print(" [x] Successfully consumed message")
 
                     except Exception as e:
+
                         db.session.rollback()
                         print("Database Error:", e)
+
+                        if data and "userId" in data:
+                            failure_payload = {"userId": data["userId"], "error": str(e)}
+                            publish_profile_creation_failed(failure_payload, _ch)
+
+                        _ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
                 ch.basic_consume(queue, on_message_callback = callback, auto_ack = False)
@@ -51,10 +65,11 @@ def run_consumer(app):
                 try:
                     message = (
                         "Consumer started successfully.\n"
+                        f"- Connected to: '{url}'\n"
                         f"- Bound to exchange: '{exchange}'\n"
                         f"- Using routing key: '{routing_key}'\n"
-                        f"- Listening on queue: '{queue}'\n"
-                        " [x] To exit press CTRL+C"
+                        f"- Listening on queue: '{queue}'\n\n"
+                        "To exit press CTRL+C"
                     )
                     print(message)
                     ch.start_consuming()
@@ -65,5 +80,5 @@ def run_consumer(app):
                     break
 
             except Exception as e:
-                print("Consumer Error:", e, "— retrying in 5s")
+                print("Consumer Error:", e, "Retry in 5 seconds...")
                 time.sleep(5)
