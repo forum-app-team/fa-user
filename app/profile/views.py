@@ -6,6 +6,7 @@ from app import db
 from app.models.User import User
 from app.profile.utils import normalize_keys
 from app.middleware.jwt_middleware import jwt_required
+from app.middleware.validate_input_middleware import validate_input
 
 
 PROFILE_KEYS = ["first_name", "last_name", "profile_img_url"]
@@ -44,7 +45,7 @@ class UserProfileView(MethodView):
             }
         return jsonify(response), 200
 
-
+    @validate_input(PROFILE_KEYS)
     def patch(self, user_id):
         # Update existing profile
 
@@ -53,10 +54,11 @@ class UserProfileView(MethodView):
             - Form data (application/x-www-form-urlencoded or multipart/form-data)
         '''
 
-        data = request.get_json() if request.is_json else request.form.to_dict()
+        # data = request.get_json() if request.is_json else request.form.to_dict()
+        normalized_data = g.normalized_data
 
-        if not user_id:
-            abort(400, description = "Invalid user ID")
+        # if not user_id:
+            # abort(400, description = "Invalid user ID")
         user = db.session.query(User).filter_by(user_id=user_id).first()
         if not user:
             abort(404, "User not found")
@@ -66,14 +68,15 @@ class UserProfileView(MethodView):
         if g.user_id != user_id:
             abort(403, "Cannot change other users' profile")
 
-        try:
-            normalized_data = normalize_keys(data, to = "snake")
-        except ValueError as e:
-            abort(400, description = str(e))
+        # try:
+        #     normalized_data = normalize_keys(data, to = "snake")
+        # except ValueError as e:
+        #     abort(400, description = str(e))
 
         updated = False
         for key in PROFILE_KEYS:
             if key in normalized_data:
+                
                 new_val = normalized_data[key]
                 curr_val =  getattr(user, key)
 
