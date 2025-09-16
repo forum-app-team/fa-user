@@ -23,6 +23,7 @@
 ## Database
 ### Models
 + User Model:
+
 | Column              | Type          | Constraints                              | Description                                                        |
 | ------------------- | ------------- | ---------------------------------------- | ------------------------------------------------------------------ |
 | `id`                | `String(36)`  | **PK**, auto-generated UUID              | Internal primary key for the `users` table                         |
@@ -72,6 +73,13 @@ fa-user
 ```
 
 ## Getting Started
++ Prerequisites:
+    - Python (Built on 3.13)
+    - MySQL Database, with credentials stored in `.env`
++ Clone this repository
++ Create and activate your virtual environment
++ `$ pip install -r requirements.txt`
++ [Optional] Verify installation: `$ pip list`
 
 ## Configuration
 ### .env
