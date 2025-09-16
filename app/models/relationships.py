@@ -13,5 +13,3 @@ class Identity(db.Model):
     
     # The PK's type must match the real table, which is `CHAR` instead of `String` here
     id: so.Mapped[str] = so.mapped_column(sa.CHAR(36), primary_key=True)
-
-# Other relationships
