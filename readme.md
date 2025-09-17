@@ -1,6 +1,81 @@
 # User Microservice
 
+## Notes
+The model `app/models/User.py` includes commented-out relationship stubs for posts, replies, histories, and messages. I leave them out for out since I have not thoroughly examine the keys from those services 
+
+**If you think the namings are correct for any model from the service you work on, feel free to uncomment the corresponding lines.**
+
 ## Features
+
+
+## Configuration
+### Environment Files
++ `.env`
+Create a `.env` file locally with the following variables:
+```
+DATABASE_NAME=forum_app
+DATABASE_SOCKET=/tmp/mysql.sock
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_HOST=localhost
+DATABASE_MANAGED_TABLES=users
+
+RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+
+RABBITMQ_EXCHANGE=user_exchange
+RABBITMQ_EXCHANGE_TYPE=direct
+RABBITMQ_ROUTING_KEY=user.created
+
+RABBITMQ_FAILURE_EXCHANGE=failure_exchange
+RABBITMQ_FAILURE_EXCHANGE_TYPE=direct
+RABBITMQ_FAILURE_ROUTING_KEY=user.failed
+
+JWT_ACCESS_SECRET=
+```
+
+or simply run `$ cp .env.example .env`
+
++ `.flaskenv`
+Create a `.flaskenv` file locally with the following variables:
+```
+FLASK_APP=app.py
+FLASK_RUN_HOST=localhost
+FLASK_RUN_PORT=5002
+```
+
+### DB Setup & Migration
++ Initial Setup (Not needed if repo is pulled from remote)
+```bash
+$ flask db init
+$ flask db migrate -m "message"
+$ flask db upgrade
+```
+
++ After pulling this repository:
+```bash
+$ flask db upgrade
+```
+
++ Undo the most recent migration:
+```bash
+$ flask db downgrade
+```
+
++ Undo all migrations:
+```bash
+$ flask db downgrade base
+```
+
+## Run the Microservice
++ The main application:
+```bash
+$ flask run
+```
+
++ The worker that consumes message from AUTH service:
+```bash
+$ flask worker
+```
 
 ## API Endpoints
 ### Endpoints and Explanation
@@ -33,33 +108,8 @@
 | `date_joined`       | `DateTime`    | server default = `NOW()`                 | Timestamp when the user was created                                |
 | `profile_image_url` | `String(256)` | nullable                                 | URL of the user’s profile image (if provided)                      |
 
-+ Placeholders
-The model `app/models/User.py` includes commented-out relationship stubs for posts, replies, histories, and messages. I leave them out for out since I have not thoroughly examine the keys from those services 
 
-**If you think the namings are correct for any model from the service you work on, feel free to uncomment the corresponding lines.**
 
-### DB Setup & Migration
-+ Initial Setup
-```bash
-$ flask db init
-$ flask db migrate -m "message"
-$ flask db upgrade
-```
-
-+ After pulling this repository:
-```bash
-$ flask db upgrade
-```
-
-+ Undo the most recent migration:
-```bash
-$ flask db downgrade
-```
-
-+ Undo all migrations:
-```bash
-$ flask db downgrade base
-```
 
 ## Project Structure
 ```
@@ -97,39 +147,7 @@ fa-user
 + `$ pip install -r requirements.txt`
 + [Optional] Verify installation: `$ pip list`
 
-## Configuration
-### .env
-Create a `.env` file locally with the following variables:
-```
-DATABASE_NAME=forum_app
-DATABASE_SOCKET=/tmp/mysql.sock
-DATABASE_USER=
-DATABASE_PASSWORD=
-DATABASE_HOST=localhost
-DATABASE_MANAGED_TABLES=users
 
-RABBITMQ_URL=amqp://guest:guest@localhost:5672/
-
-RABBITMQ_EXCHANGE=user_exchange
-RABBITMQ_EXCHANGE_TYPE=direct
-RABBITMQ_ROUTING_KEY=user.created
-
-RABBITMQ_FAILURE_EXCHANGE=failure_exchange
-RABBITMQ_FAILURE_EXCHANGE_TYPE=direct
-RABBITMQ_FAILURE_ROUTING_KEY=user.failed
-
-JWT_ACCESS_SECRET=
-```
-
-or simply run `$ cp .env.example .env`
-
-### .flaskenv
-Create a `.flaskenv` file locally with the following variables:
-```
-FLASK_APP=app.py
-FLASK_RUN_HOST=localhost
-FLASK_RUN_PORT=5002
-```
 
 ## Miscellaneous
 
