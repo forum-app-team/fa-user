@@ -39,10 +39,26 @@ The model `app/models/User.py` includes commented-out relationship stubs for pos
 **If you think the namings are correct for any model from the service you work on, feel free to uncomment the corresponding lines.**
 
 ### DB Setup & Migration
++ Initial Setup
 ```bash
 $ flask db init
 $ flask db migrate -m "message"
 $ flask db upgrade
+```
+
++ After pulling this repository:
+```bash
+$ flask db upgrade
+```
+
++ Undo the most recent migration:
+```bash
+$ flask db downgrade
+```
+
++ Undo all migrations:
+```bash
+$ flask db downgrade base
 ```
 
 ## Project Structure
