@@ -9,7 +9,7 @@ from app.middleware.jwt_middleware import jwt_required
 from app.middleware.validate_input_middleware import validate_input
 
 
-PROFILE_KEYS = ["first_name", "last_name", "profile_img_url"]
+PROFILE_KEYS = ["first_name", "last_name", "profile_image_url"]
 
 class UserProfileView(MethodView):
 
